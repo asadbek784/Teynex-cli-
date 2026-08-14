@@ -1,0 +1,40 @@
+{
+  "name": "teynex-ai",
+  "version": "1.2.0",
+  "description": "Teynex AI \u2014 OpenCode-style autonomous coding agent for Termux and Ubuntu/proot-distro.",
+  "type": "module",
+  "bin": {
+    "teynex": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "INSTALL-TERMUX.md",
+    "INSTALL-UBUNTU.md",
+    "install-ubuntu.sh",
+    "uninstall-ubuntu.sh",
+    "LICENSE",
+    "install-termux-ubuntu.sh"
+  ],
+  "scripts": {
+    "dev": "tsx src/index.tsx",
+    "build": "tsup src/index.tsx --format esm --dts false --clean",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ink": "^5.1.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.12",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
