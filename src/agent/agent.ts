@@ -30,7 +30,7 @@ function parseTool(text: string): ToolCall | null {
 
 export class TeynexAgent {
   private client: AIClient;
-  constructor(model = config.model) { this.client = new AIClient(model); }
+  constructor(model?: string) { const cfg = getConfig(); this.client = new AIClient(model || cfg.model); }
 
   async run(task: string, approve: ApprovalFn, onStep?: (n: number, label: string) => void): Promise<AgentResult> {
     const config = getConfig();
