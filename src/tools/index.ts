@@ -21,11 +21,20 @@ export function toolDefinitions() {
     { name: 'read_file', description: 'Read a UTF-8 text file.', args: { path: 'string' } },
     { name: 'write_file', description: 'Create or overwrite a UTF-8 text file.', args: { path: 'string', content: 'string' } },
     { name: 'edit_file', description: 'Replace one exact text occurrence in a file.', args: { path: 'string', oldText: 'string', newText: 'string' } },
-    { name: 'search_files', description: 'Search text recursively in project files.', args: { query: 'string', path: 'string optional' } },
+    { name: 'search_files', description: 'Search text recursively in project files (uses ripgrep if available, falls back to grep).', args: { query: 'string', path: 'string optional' } },
     { name: 'run_command', description: 'Run a shell command in the project. Potentially destructive commands require approval.', args: { command: 'string' } },
     { name: 'git_status', description: 'Get git status.', args: {} },
-    { name: 'git_diff', description: 'Get git diff.', args: {} }
+    { name: 'git_diff', description: 'Get git diff.', args: {} },
+    { name: 'glob_files', description: 'Find files matching a glob pattern.', args: { pattern: 'string' } },
+    { name: 'delete_file', description: 'Delete a file or directory.', args: { path: 'string' } },
   ];
+}
+
+async function hasCommand(cmd: string): Promise<boolean> {
+  try {
+    await execAsync(`which ${cmd}`);
+    return true;
+  } catch { return false; }
 }
 
 export async function runTool(name: string, args: Record<string, unknown>, approve: ApprovalFn): Promise<string> {
@@ -56,8 +65,17 @@ export async function runTool(name: string, args: Record<string, unknown>, appro
     case 'search_files': {
       const q = String(args.query || '');
       const start = safePath(String(args.path || '.'));
-      const { stdout } = await execAsync(`rg -n --hidden --glob '!.git' --glob '!node_modules' ${JSON.stringify(q)} ${JSON.stringify(start)}`, { cwd: ROOT, maxBuffer: 400000 });
-      return stdout || '(no matches)';
+      const useRg = await hasCommand('rg');
+      const cmd = useRg
+        ? `rg -n --hidden --glob '!.git' --glob '!node_modules' ${JSON.stringify(q)} ${JSON.stringify(start)}`
+        : `grep -rn ${JSON.stringify(q)} ${JSON.stringify(start)} --exclude-dir=.git --exclude-dir=node_modules`;
+      try {
+        const { stdout } = await execAsync(cmd, { cwd: ROOT, maxBuffer: 400000 });
+        return stdout || '(no matches)';
+      } catch (e) {
+        if (e instanceof Error && 'stdout' in e && (e as any).stdout) return (e as any).stdout;
+        return '(no matches)';
+      }
     }
     case 'run_command': {
       const command = String(args.command || '').trim();
@@ -73,6 +91,18 @@ export async function runTool(name: string, args: Record<string, unknown>, appro
     case 'git_diff': {
       const { stdout } = await execAsync('git diff --', { cwd: ROOT, maxBuffer: 800000 });
       return stdout || '(no diff)';
+    }
+    case 'glob_files': {
+      const pattern = String(args.pattern || '');
+      const { stdout } = await execAsync(`find . -type f -name ${JSON.stringify(pattern)} ! -path './.git/*' ! -path './node_modules/*'`, { cwd: ROOT, maxBuffer: 400000 });
+      return stdout || '(no matches)';
+    }
+    case 'delete_file': {
+      const p = safePath(String(args.path));
+      const stat = await fs.stat(p);
+      if (stat.isDirectory()) await fs.rm(p, { recursive: true });
+      else await fs.unlink(p);
+      return `Deleted ${path.relative(ROOT, p)}`;
     }
     default: throw new Error(`Unknown tool: ${name}`);
   }
