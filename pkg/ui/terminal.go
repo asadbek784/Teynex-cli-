@@ -13,25 +13,20 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/fatih/color"
-	"github.com/muesli/reflow/wordwrap"
-	"github.com/muesli/termenv"
 )
 
 var (
-	output     = termenv.NewOutput(os.Stdout)
-	hasColor   = output.ColorProfile() != termenv.Ascii
 	bold       = lipgloss.NewStyle().Bold(true)
 	dim        = lipgloss.NewStyle().Faint(true)
 	italic     = lipgloss.NewStyle().Italic(true)
 
-	primary    = lipgloss.AdaptiveColor{Light: "#1a1a2e", Dark: "#eaeaea"}
-	secondary  = lipgloss.AdaptiveColor{Light: "#16213e", Dark: "#b8b8b8"}
-	accent     = lipgloss.AdaptiveColor{Light: "#0f3460", Dark: "#7aa2f7"}
-	success    = lipgloss.AdaptiveColor{Light: "#27ae60", Dark: "#4ec9b0"}
-	warning    = lipgloss.AdaptiveColor{Light: "#f39c12", Dark: "#dcdcaa"}
-	errorColor = lipgloss.AdaptiveColor{Light: "#e74c3c", Dark: "#f44747"}
-	muted      = lipgloss.AdaptiveColor{Light: "#7f8c8d", Dark: "#858585"}
+	primary    = lipgloss.Color("#eaeaea")
+	secondary  = lipgloss.Color("#b8b8b8")
+	accent     = lipgloss.Color("#7aa2f7")
+	success    = lipgloss.Color("#4ec9b0")
+	warning    = lipgloss.Color("#dcdcaa")
+	errorColor = lipgloss.Color("#f44747")
+	muted      = lipgloss.Color("#858585")
 
 	userStyle    = lipgloss.NewStyle().Foreground(primary).Bold(true)
 	agentStyle   = lipgloss.NewStyle().Foreground(accent).Bold(true)
@@ -224,7 +219,7 @@ func (t *Terminal) StopSpinner(success bool, msg string) {
 	if success {
 		fmt.Printf("\r%s %s\n", successColor("✓"), msg)
 	} else {
-		fmt.Printf("\r%s %s\n", errorColor("✗"), msg)
+		fmt.Printf("\r%s %s\n", errColor("✗"), msg)
 	}
 }
 
@@ -303,8 +298,7 @@ func (t *Terminal) renderMarkdown(text string) string {
 		} else if strings.Contains(line, "`") {
 			result = append(result, t.renderInlineCode(line))
 		} else {
-			wrapped := wordwrap.String(line, t.width-4)
-			result = append(result, wrapped)
+			result = append(result, line)
 		}
 	}
 	
@@ -351,7 +345,7 @@ func successColor(s string) string {
 	return lipgloss.NewStyle().Foreground(success).Bold(true).Render(s)
 }
 
-func errorColor(s string) string {
+func errColor(s string) string {
 	return lipgloss.NewStyle().Foreground(errorColor).Bold(true).Render(s)
 }
 
