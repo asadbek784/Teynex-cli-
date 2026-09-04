@@ -67,25 +67,18 @@ install_from_source() {
   log "Building from source..."
   local tmpdir
   tmpdir=$(mktemp -d)
+  trap 'rm -rf "$tmpdir"' EXIT
   cd "$tmpdir"
   git clone --depth 1 "https://github.com/${REPO}.git" teynex
   cd teynex
-  npm ci
+  npm ci --no-audit --no-fund
   npm run build
-  mkdir -p "$INSTALL_DIR"
-  cp dist/index.js "$INSTALL_DIR/$BIN_NAME"
-  chmod +x "$INSTALL_DIR/$BIN_NAME"
-  ok "Installed to $INSTALL_DIR/$BIN_NAME"
+  npm install -g . --no-audit --no-fund
+  ok "Installed globally with npm"
 }
 
 install_npm_global() {
-  if check_cmd npm; then
-    log "Installing via npm..."
-    npm install -g "github:${REPO}"
-    ok "Installed globally via npm"
-  else
-    install_from_source
-  fi
+  install_from_source
 }
 
 ensure_path() {

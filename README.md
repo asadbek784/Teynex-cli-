@@ -11,12 +11,26 @@ TYNEX CLI is a terminal-native autonomous coding agent designed for repository e
 - Doctor checks for runtime and environment health
 - Non-interactive and interactive modes
 
-## Quick start
+## Install
+
+### Windows PowerShell
+
+```powershell
+irm https://raw.githubusercontent.com/asadbek784/Teynex-cli-/main/install.ps1 | iex
+```
+
+### Linux, macOS, WSL, Termux
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/asadbek784/Teynex-cli-/main/install.sh | bash
+```
+
+### Local development
 
 ```bash
 npm install
 npm run build
-node dist/cli.js --help
+node dist/src/cli.js --help
 ```
 
 ## Commands
