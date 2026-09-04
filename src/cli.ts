@@ -100,22 +100,25 @@ async function main(): Promise<void> {
   });
 
   const config = loadConfig(process.cwd());
+  const positionalCommand = args.positionals[0];
   if (args.values.help) {
     printUsage();
     return;
   }
 
-  if (args.values.config) {
+  if (args.values.config || positionalCommand === 'config') {
     printConfig(config);
     return;
   }
 
-  if (args.values.doctor) {
+  if (args.values.doctor || positionalCommand === 'doctor') {
     await runDoctor(process.cwd());
     return;
   }
 
-  const prompt = typeof args.values.prompt === 'string' ? args.values.prompt : args.positionals.join(' ');
+  const prompt = typeof args.values.prompt === 'string'
+    ? args.values.prompt
+    : (positionalCommand === 'doctor' || positionalCommand === 'config' ? '' : args.positionals.join(' '));
   if (typeof prompt === 'string' && prompt.length > 0) {
     const classify = classifyCommand(prompt);
     if (classify === 'DANGEROUS') {
