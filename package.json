@@ -1,0 +1,20 @@
+{
+  "name": "tynex-cli",
+  "version": "0.1.0",
+  "description": "Terminal-native autonomous coding agent",
+  "type": "module",
+  "bin": {
+    "tynex": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/cli.js",
+    "dev": "tsx src/cli.ts",
+    "test": "npm run build && node --test dist/tests/*.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3"
+  }
+}
