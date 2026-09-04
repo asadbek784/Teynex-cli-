@@ -13,5 +13,17 @@
     "rootDir": ".",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  "include": [
+    "src/cli.ts",
+    "src/types.ts",
+    "src/config.ts",
+    "src/security.ts",
+    "src/agent/agent.ts",
+    "src/agent/planner.ts",
+    "src/project/**/*.ts",
+    "src/tools/filesystem.ts",
+    "src/tools/shell.ts",
+    "src/ui/console.ts",
+    "tests/**/*.ts"
+  ]
 }
